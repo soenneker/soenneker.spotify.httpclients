@@ -1,20 +1,19 @@
 using Soenneker.Spotify.HttpClients.Abstract;
-using Soenneker.Tests.FixturedUnit;
-using Xunit;
+using Soenneker.Tests.HostedUnit;
 
 namespace Soenneker.Spotify.HttpClients.Tests;
 
-[Collection("Collection")]
-public sealed class SpotifyOpenApiHttpClientTests : FixturedUnitTest
+[ClassDataSource<Host>(Shared = SharedType.PerTestSession)]
+public sealed class SpotifyOpenApiHttpClientTests : HostedUnitTest
 {
     private readonly ISpotifyOpenApiHttpClient _httpclient;
 
-    public SpotifyOpenApiHttpClientTests(Fixture fixture, ITestOutputHelper output) : base(fixture, output)
+    public SpotifyOpenApiHttpClientTests(Host host) : base(host)
     {
         _httpclient = Resolve<ISpotifyOpenApiHttpClient>(true);
     }
 
-    [Fact]
+    [Test]
     public void Default()
     {
 
