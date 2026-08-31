@@ -11,13 +11,13 @@ using Soenneker.Utils.HttpClientCache.Abstract;
 
 namespace Soenneker.Spotify.HttpClients;
 
-///<inheritdoc cref="ISpotifyOpenApiHttpClient"/>
 public sealed class SpotifyOpenApiHttpClient : ISpotifyOpenApiHttpClient
 {
     private readonly IHttpClientCache _httpClientCache;
     private readonly IConfiguration _config;
+    private readonly string _cacheKey = $"{nameof(SpotifyOpenApiHttpClient)}-{Guid.NewGuid():N}";
 
-    private const string _prodBaseUrl = "https://api.spotify.com/v1";
+    private const string _prodBaseUrl = "https://api.spotify.com/v1/";
 
     public SpotifyOpenApiHttpClient(IHttpClientCache httpClientCache, IConfiguration config)
     {
@@ -27,11 +27,11 @@ public sealed class SpotifyOpenApiHttpClient : ISpotifyOpenApiHttpClient
 
     public ValueTask<HttpClient> Get(CancellationToken cancellationToken = default)
     {
-        return _httpClientCache.Get(nameof(SpotifyOpenApiHttpClient), (config: _config, baseUrl: _config["Spotify:ClientBaseUrl"] ?? _prodBaseUrl), static state =>
+        return _httpClientCache.Get(_cacheKey, (config: _config, baseUrl: _config["Spotify:ClientBaseUrl"] ?? _prodBaseUrl), static state =>
         {
             var apiKey = state.config.GetValueStrict<string>("Spotify:ApiKey");
-            string authHeaderName = state.config["Spotify:AuthHeaderName"] ?? "Bearer {token}";
-            string authHeaderValueTemplate = state.config["Spotify:AuthHeaderValueTemplate"] ?? "{token}";
+            string authHeaderName = state.config["Spotify:AuthHeaderName"] ?? "Authorization";
+            string authHeaderValueTemplate = state.config["Spotify:AuthHeaderValueTemplate"] ?? "Bearer {token}";
             string authHeaderValue = authHeaderValueTemplate.Replace("{token}", apiKey, StringComparison.Ordinal);
 
             return new HttpClientOptions
@@ -45,20 +45,13 @@ public sealed class SpotifyOpenApiHttpClient : ISpotifyOpenApiHttpClient
         }, cancellationToken);
     }
 
-    /// <summary>
-    /// Releases resources used by the current instance.
-    /// </summary>
     public void Dispose()
     {
-        _httpClientCache.RemoveSync(nameof(SpotifyOpenApiHttpClient));
+        _httpClientCache.RemoveSync(_cacheKey);
     }
 
-    /// <summary>
-    /// Asynchronously releases resources used by the current instance.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
     public ValueTask DisposeAsync()
     {
-        return _httpClientCache.Remove(nameof(SpotifyOpenApiHttpClient));
+        return _httpClientCache.Remove(_cacheKey);
     }
 }
