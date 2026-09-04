@@ -11,6 +11,7 @@ using Soenneker.Utils.HttpClientCache.Abstract;
 
 namespace Soenneker.Spotify.HttpClients;
 
+/// <inheritdoc cref="ISpotifyOpenApiHttpClient" />
 public sealed class SpotifyOpenApiHttpClient : ISpotifyOpenApiHttpClient
 {
     private readonly IHttpClientCache _httpClientCache;
