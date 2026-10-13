@@ -30,7 +30,7 @@ public sealed class SpotifyOpenApiHttpClient : ISpotifyOpenApiHttpClient
     {
         return _httpClientCache.Get(_cacheKey, (config: _config, baseUrl: _config["Spotify:ClientBaseUrl"] ?? _prodBaseUrl), static state =>
         {
-            var apiKey = state.config.GetValueStrict<string>("Spotify:ApiKey");
+            var apiKey = state.config.GetStringStrict("Spotify:ApiKey");
             string authHeaderName = state.config["Spotify:AuthHeaderName"] ?? "Authorization";
             string authHeaderValueTemplate = state.config["Spotify:AuthHeaderValueTemplate"] ?? "Bearer {token}";
             string authHeaderValue = authHeaderValueTemplate.Replace("{token}", apiKey, StringComparison.Ordinal);
